@@ -37,8 +37,7 @@ shared/
 infrastructure/
   template.yaml   Root SAM template — add new functions here
 
-bootstrap/
-  main.tf         OIDC deploy role + SAM artifacts S3 bucket (run once)
+bootstrap/        (none — owned by platform-bootstrap)
 ```
 
 ## Common commands
@@ -51,7 +50,6 @@ make lint          # ruff check
 make build         # sam build
 make deploy-local  # deploy to LocalStack
 make deploy-aws    # deploy to AWS (requires credentials)
-make bootstrap-apply  # provision OIDC role + S3 bucket (run once)
 ```
 
 ## Adding a new service
@@ -84,4 +82,4 @@ make bootstrap-apply  # provision OIDC role + S3 bucket (run once)
 
 Local dev: set `AWS_PROFILE` or use `aws configure` with IAM keys for your personal account.
 
-After `make bootstrap-apply`, copy `deploy_role_arn` from outputs → add as `AWS_DEPLOY_ROLE_ARN` secret in GitHub repo settings.
+The GitHub Actions deploy role and SAM artifacts bucket are owned by **platform-bootstrap** — not this repo. After running `terraform apply` in platform-bootstrap, copy `service_deploy_role_arns["memex-suite"]` from its outputs and add it as `AWS_DEPLOY_ROLE_ARN` in this repo's GitHub Actions secrets. The `service_artifact_buckets["memex-suite"]` output gives the SAM bucket name to pass via `--s3-bucket`.

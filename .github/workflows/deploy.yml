@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
 
+# Required GitHub Actions configuration (set after platform-bootstrap terraform apply):
+#   Secrets → AWS_DEPLOY_ROLE_ARN   : value of platform-bootstrap output service_deploy_role_arns["memex-suite"]
+#   Variables → AWS_SAM_BUCKET      : value of platform-bootstrap output service_artifact_buckets["memex-suite"]
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -18,6 +22,9 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # required for OIDC token exchange
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: aws-actions/setup-sam@v2
@@ -25,4 +32,14 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           aws-region: us-east-1
-      - run: sam build && sam deploy --no-confirm-changeset --stack-name memex-prod
+      - name: SAM build
+        run: sam build --template infrastructure/template.yaml
+      - name: SAM deploy
+        run: |
+          sam deploy \
+            --template infrastructure/template.yaml \
+            --stack-name memex-prod \
+            --s3-bucket ${{ vars.AWS_SAM_BUCKET }} \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset \
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM

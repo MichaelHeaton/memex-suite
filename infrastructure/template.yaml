@@ -21,6 +21,9 @@ Globals:
     Timeout: 30
     MemorySize: 256
     Architectures: [arm64]
+    # Boundary created by platform-bootstrap — caps what any Lambda execution role can ever do.
+    # The deploy role (also from platform-bootstrap) enforces this boundary at role-creation time.
+    PermissionsBoundary: !Sub "arn:aws:iam::${AWS::AccountId}:policy/memex-suite-lambda-boundary"
     Environment:
       Variables:
         DATABASE_URL: !Ref DatabaseUrl

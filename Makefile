@@ -79,19 +79,6 @@ deploy-aws: build ## Deploy to real AWS (requires AWS_PROFILE or credentials)
 	  --region $(AWS_REGION) \
 	  --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
 
-# ── Bootstrap (run once) ──────────────────────────────────────────────────────
-.PHONY: bootstrap-init
-bootstrap-init: ## Terraform init for bootstrap module
-	cd bootstrap && terraform init
-
-.PHONY: bootstrap-plan
-bootstrap-plan: ## Plan bootstrap changes (OIDC role + SAM bucket)
-	cd bootstrap && terraform plan
-
-.PHONY: bootstrap-apply
-bootstrap-apply: ## Apply bootstrap (creates OIDC deploy role + SAM bucket)
-	cd bootstrap && terraform apply
-
 # ── Utilities ─────────────────────────────────────────────────────────────────
 .PHONY: clean
 clean: ## Remove build artifacts
