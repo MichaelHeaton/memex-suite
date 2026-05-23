@@ -1,17 +1,81 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Memex Suite — AWS SAM root template
+Description: Memex Suite — microservices platform
 
-# Deploy to LocalStack:  AWS_ENDPOINT_URL=http://localhost:4566 sam deploy --stack-name memex-dev
-# Deploy to AWS:         sam deploy --stack-name memex-prod --region us-east-1
+# ── Deployment ─────────────────────────────────────────────────────────────────
+# Local (LocalStack):  AWS_ENDPOINT_URL=http://localhost:4566 make deploy-local
+# Production (AWS):    make deploy-aws
+
+Parameters:
+  Environment:
+    Type: String
+    Default: prod
+    AllowedValues: [dev, prod]
+  DatabaseUrl:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /memex/database_url
 
 Globals:
   Function:
     Runtime: python3.12
     Timeout: 30
     MemorySize: 256
+    Architectures: [arm64]
     Environment:
       Variables:
-        VAULT_ADDR: !Sub "{{resolve:ssm:/memex/vault_addr}}"
+        DATABASE_URL: !Ref DatabaseUrl
+        ENVIRONMENT: !Ref Environment
 
-# TODO: add function resources per service as each is built
+# ── API Gateway ────────────────────────────────────────────────────────────────
+
+Resources:
+  MemexApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: !Ref Environment
+      Tags:
+        project: memex-suite
+
+  # ── Source Registry ────────────────────────────────────────────────────────
+
+  SourceRegistryFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      FunctionName: !Sub "memex-source-registry-${Environment}"
+      CodeUri: ../services/source-registry/
+      Handler: src.handler.handler
+      Description: Source Registry service — canonical list of external systems
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Events:
+        ApiProxy:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref MemexApi
+            Path: /v1/sources/{proxy+}
+            Method: ANY
+        HealthCheck:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref MemexApi
+            Path: /v1/health
+            Method: GET
+
+  SourceRegistryFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/memex-source-registry-${Environment}"
+      RetentionInDays: 14
+
+# ── Add new services here following the same pattern ──────────────────────────
+# Each service gets:
+#   - AWS::Serverless::Function (BuildMethod: makefile)
+#   - AWS::Logs::LogGroup (RetentionInDays: 14)
+#   - Events pointing at MemexApi
+
+Outputs:
+  ApiUrl:
+    Description: Memex Suite API Gateway URL
+    Value: !Sub "https://${MemexApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"

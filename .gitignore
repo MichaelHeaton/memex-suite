@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+.eggs/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# SAM / AWS
+.aws-sam/
+samconfig.toml
+*.zip
+
+# Terraform
+bootstrap/.terraform/
+bootstrap/.terraform.lock.hcl
+bootstrap/terraform.tfstate
+bootstrap/terraform.tfstate.backup
+bootstrap/terraform.tfvars
+bootstrap/.terraformignore
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Mac
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp

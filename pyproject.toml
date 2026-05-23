@@ -1,0 +1,26 @@
+[project]
+name = "memex-suite"
+version = "0.1.0"
+requires-python = ">=3.12"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-cov",
+    "httpx",           # async test client for FastAPI
+    "ruff",
+    "boto3",
+    "moto[all]>=5",    # AWS service mocking for tests
+]
+
+[tool.pytest.ini_options]
+testpaths = ["services"]
+addopts = "--tb=short -q"
+# Each service's conftest.py manages its own sys.path so `from src.x import` works
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
