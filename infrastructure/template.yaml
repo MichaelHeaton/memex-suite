@@ -1,0 +1,17 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Memex Suite — AWS SAM root template
+
+# Deploy to LocalStack:  AWS_ENDPOINT_URL=http://localhost:4566 sam deploy --stack-name memex-dev
+# Deploy to AWS:         sam deploy --stack-name memex-prod --region us-east-1
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 30
+    MemorySize: 256
+    Environment:
+      Variables:
+        VAULT_ADDR: !Sub "{{resolve:ssm:/memex/vault_addr}}"
+
+# TODO: add function resources per service as each is built

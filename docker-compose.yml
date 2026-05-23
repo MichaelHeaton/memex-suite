@@ -1,0 +1,52 @@
+services:
+
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4566:4566"
+    environment:
+      SERVICES: lambda,sqs,s3,apigateway,events
+      DEFAULT_REGION: us-east-1
+      LAMBDA_EXECUTOR: docker
+    volumes:
+      - localstack_data:/var/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  pgbouncer:
+    image: pgbouncer/pgbouncer
+    depends_on: [postgres]
+
+  vault:
+    image: hashicorp/vault
+    cap_add: [IPC_LOCK]
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_DEV_TOKEN}
+    ports:
+      - "8200:8200"
+    volumes:
+      - vault_data:/vault/data
+    command: server -dev
+
+  traefik:
+    image: traefik:v3
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik:/etc/traefik
+
+volumes:
+  localstack_data:
+  postgres_data:
+  vault_data:
