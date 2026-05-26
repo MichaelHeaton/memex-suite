@@ -8,8 +8,10 @@
 #
 # Lambda handler: src.handler.handler
 
+PYTHON ?= python3
+
 .PHONY: build-SourceRegistryFunction
 build-SourceRegistryFunction:
 	cp -r src $(ARTIFACTS_DIR)/src
 	cp -r ../../shared $(ARTIFACTS_DIR)/shared
-	pip install -r requirements.txt -t $(ARTIFACTS_DIR) --quiet
+	$(PYTHON) -m pip install -r requirements.txt -t $(ARTIFACTS_DIR) --quiet

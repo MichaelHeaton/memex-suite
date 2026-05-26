@@ -9,7 +9,8 @@ Personal knowledge and operations platform. Nine microservices with a unified MC
 - **Database**: Aurora Serverless v2 (PostgreSQL 16) via RDS Proxy; SQLite in tests
 - **IaC**: AWS SAM (`infrastructure/template.yaml`)
 - **CI/CD**: GitHub Actions (`.github/workflows/`)
-- **Local dev**: LocalStack via `docker-compose.yml`
+- **Primary environment**: AWS via SAM and GitHub Actions
+- **Local dev**: LocalStack/docker-compose scaffolding exists but is deferred
 - **Secrets**: HashiCorp Vault (dev mode locally; production endpoint via SSM)
 
 ## Repository layout
@@ -43,14 +44,15 @@ bootstrap/        (none — owned by platform-bootstrap)
 ## Common commands
 
 ```bash
-make dev           # start LocalStack + Postgres + Vault
-make install       # install dev deps
+make install       # install dev tooling + service runtime deps
 make test          # run all tests
 make lint          # ruff check
-make build         # sam build
-make deploy-local  # deploy to LocalStack
+make build         # sam build using infrastructure/template.yaml
 make deploy-aws    # deploy to AWS (requires credentials)
 ```
+
+LocalStack/docker-compose commands are available but are not the current
+delivery path. Do not let local environment work block AWS deployment work.
 
 ## Adding a new service
 
@@ -80,6 +82,7 @@ make deploy-aws    # deploy to AWS (requires credentials)
 
 ## AWS credentials
 
-Local dev: set `AWS_PROFILE` or use `aws configure` with IAM keys for your personal account.
+Manual AWS deploys: set `AWS_PROFILE` or use `aws configure` with IAM keys for
+your personal account.
 
 The GitHub Actions deploy role and SAM artifacts bucket are owned by **platform-bootstrap** — not this repo. After running `terraform apply` in platform-bootstrap, copy `service_deploy_role_arns["memex-suite"]` from its outputs and add it as `AWS_DEPLOY_ROLE_ARN` in this repo's GitHub Actions secrets. The `service_artifact_buckets["memex-suite"]` output gives the SAM bucket name to pass via `--s3-bucket`.
