@@ -56,7 +56,9 @@ def test_update_source(client):
         },
     )
     source_id = create_resp.json()["id"]
-    resp = client.patch(f"/v1/sources/{source_id}", json={"display_name": "Homelab GitLab (updated)"})
+    resp = client.patch(
+        f"/v1/sources/{source_id}", json={"display_name": "Homelab GitLab (updated)"}
+    )
     assert resp.status_code == 200
     assert resp.json()["display_name"] == "Homelab GitLab (updated)"
     assert resp.json()["updated_by"] == "system"
@@ -81,7 +83,12 @@ def test_deactivate_source(client):
 def test_filter_by_system_type(client):
     client.post(
         "/v1/sources",
-        json={"system_type": "github", "instance": "github.com", "display_name": "GH", "base_url": "https://github.com"},
+        json={
+            "system_type": "github",
+            "instance": "github.com",
+            "display_name": "GH",
+            "base_url": "https://github.com",
+        },
     )
     resp = client.get("/v1/sources?system_type=github")
     assert resp.status_code == 200
@@ -91,7 +98,12 @@ def test_filter_by_system_type(client):
 def test_filter_inactive(client):
     create_resp = client.post(
         "/v1/sources",
-        json={"system_type": "other", "instance": "example.com", "display_name": "X", "base_url": "https://example.com"},
+        json={
+            "system_type": "other",
+            "instance": "example.com",
+            "display_name": "X",
+            "base_url": "https://example.com",
+        },
     )
     source_id = create_resp.json()["id"]
     client.patch(f"/v1/sources/{source_id}/deactivate")
