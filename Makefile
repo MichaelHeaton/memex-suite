@@ -61,6 +61,12 @@ test-cov: ## Run tests with coverage report
 	$(PYTHON) -m pytest --cov=services --cov=shared --cov-report=term-missing
 
 # ── SAM build & deploy ────────────────────────────────────────────────────────
+.PHONY: build-SourceRegistryFunction
+build-SourceRegistryFunction: ## SAM custom build target for SourceRegistryFunction
+	cp -r services/source-registry/src $(ARTIFACTS_DIR)/src
+	cp -r shared $(ARTIFACTS_DIR)/shared
+	$(PYTHON) -m pip install -r services/source-registry/requirements.txt -t $(ARTIFACTS_DIR) --quiet
+
 .PHONY: build
 build: ## Build all Lambda functions with SAM
 	sam build --template-file $(SAM_TEMPLATE)

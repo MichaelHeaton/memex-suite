@@ -1,10 +1,11 @@
 import time
 
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from shared.health import DependencyStatus, health_response
+
 from ..database import get_session
 
 router = APIRouter()

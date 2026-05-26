@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import Boolean, Column, DateTime, String, Text
@@ -11,7 +11,7 @@ class Base(DeclarativeBase):
     pass
 
 
-class SystemType(str, Enum):
+class SystemType(StrEnum):
     github = "github"
     jira = "jira"
     gitlab = "gitlab"
@@ -31,12 +31,13 @@ class SourceRecord(Base):
     base_url = Column(String(500), nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
     notes = Column(Text, nullable=True)
-    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(UTC))
     created_by = Column(String(255), nullable=False)
     updated_by = Column(String(255), nullable=True)
 
 
 # ── Pydantic schemas ───────────────────────────────────────────────────────────
+
 
 class SourceCreate(BaseModel):
     system_type: SystemType

@@ -29,7 +29,6 @@ services/{service-name}/
     conftest.py   sys.path setup, SQLite fixtures, TestClient
     test_*.py
   requirements.txt
-  Makefile        SAM build target (build-{FunctionName})
 
 shared/
   health.py       Standard health check response builder
@@ -57,7 +56,7 @@ delivery path. Do not let local environment work block AWS deployment work.
 ## Adding a new service
 
 1. Copy `services/source-registry/` as a template
-2. Rename the SAM function in the service `Makefile` (`build-{FunctionName}`)
+2. Add or update the root `Makefile` SAM custom build target (`build-{FunctionName}`)
 3. Add the function resource to `infrastructure/template.yaml`
 4. Register the service in the MCP gateway
 

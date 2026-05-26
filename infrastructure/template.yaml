@@ -47,7 +47,7 @@ Resources:
       BuildMethod: makefile
     Properties:
       FunctionName: !Sub "memex-source-registry-${Environment}"
-      CodeUri: ../services/source-registry/
+      CodeUri: ../
       Handler: src.handler.handler
       Description: Source Registry service — canonical list of external systems
       Policies:

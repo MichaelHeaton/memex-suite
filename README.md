@@ -18,8 +18,9 @@ make test
 make build
 ```
 
-`make build` uses the root SAM template at `infrastructure/template.yaml` and
-writes deployable artifacts under `.aws-sam/build/`.
+`make build` uses the root SAM template at `infrastructure/template.yaml`,
+runs custom build targets from the root `Makefile`, and writes deployable
+artifacts under `.aws-sam/build/`.
 
 ## AWS deployment
 
